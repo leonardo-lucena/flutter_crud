@@ -40,7 +40,7 @@ class Users with ChangeNotifier {
       _items.putIfAbsent(
           id,
           () => User(
-              id: user.id,
+              id: id,
               name: user.name,
               email: user.email,
               avatarUrl: user.avatarUrl));
