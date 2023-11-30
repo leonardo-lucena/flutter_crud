@@ -7,15 +7,26 @@ class UserForm extends StatelessWidget {
   UserForm({Key? key}) : super(key: key);
 
   final _form = GlobalKey<FormState>();
-  final Map<String, String> _formData = {
-    'id': '',
-    'nome': '',
-    'email': '',
-    'avatarUrl': ''
-  };
+  final Map<String, String> _formData = {};
+
+  void _loadFormData(User user) {
+    _formData['id'] = user.id;
+    _formData['name'] = user.name;
+    _formData['email'] = user.email;
+    _formData['avatarUrl'] = user.avatarUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = ModalRoute.of(context)?.settings.arguments as User? ??
+        const User(id: '', name: '', email: '', avatarUrl: '');
+    String acao = 'Usuário criado com sucesso.';
+
+    if (user.id.isNotEmpty) {
+      _loadFormData(user);
+      acao = 'Usuário alterado com sucesso.';
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Formulário de Usuário'),
@@ -28,16 +39,23 @@ class UserForm extends StatelessWidget {
                 _form.currentState!.save();
 
                 Provider.of<Users>(context, listen: false).put(User(
-                  id: _formData['id']!,
-                  name: _formData['nome']!,
-                  email: _formData['email']!,
-                  avatarUrl: _formData['avatarUrl']!,
+                  id: _formData['id'] ?? '',
+                  name: _formData['name'] ?? '',
+                  email: _formData['email'] ?? '',
+                  avatarUrl: _formData['avatarUrl'] ?? '',
                 ));
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(acao),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
 
                 Navigator.of(context).pop();
               }
             },
-            icon: Icon(Icons.save),
+            icon: const Icon(Icons.save),
           )
         ],
       ),
@@ -48,6 +66,7 @@ class UserForm extends StatelessWidget {
           child: Column(
             children: <Widget>[
               TextFormField(
+                initialValue: _formData['name'],
                 decoration: const InputDecoration(labelText: 'Nome'),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -60,18 +79,19 @@ class UserForm extends StatelessWidget {
 
                   return null;
                 },
-                onSaved: (value) => _formData['nome'] = value!,
+                onSaved: (value) => _formData['name'] = value!,
               ),
               TextFormField(
+                initialValue: _formData['email'],
                 decoration: const InputDecoration(labelText: 'E-mail'),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'E-mail inválido.';
+                    return 'E-mail é obrigatório.';
                   }
 
                   if (!RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$')
                       .hasMatch(value)) {
-                    return 'E-mail inválido.';
+                    return 'E-mail inválido. Por favor, insira um e-mail válido.';
                   }
 
                   return null;
@@ -79,6 +99,7 @@ class UserForm extends StatelessWidget {
                 onSaved: (value) => _formData['email'] = value!,
               ),
               TextFormField(
+                initialValue: _formData['avatarUrl'],
                 decoration: const InputDecoration(labelText: 'URL do Avatar'),
                 onSaved: (value) => _formData['avatarUrl'] = value!,
               ),
