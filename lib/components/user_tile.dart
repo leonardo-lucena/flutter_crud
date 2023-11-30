@@ -55,6 +55,12 @@ class UserTile extends StatelessWidget {
                 ).then((confirmed) {
                   if (confirmed) {
                     Provider.of<Users>(context, listen: false).remove(user);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Usuário excluído com sucesso!'),
+                      ),
+                    );
                   }
                 });
               },
