@@ -3,11 +3,19 @@ import 'package:flutter_crud/models/user.dart';
 import 'package:flutter_crud/provider/users.dart';
 import 'package:provider/provider.dart';
 
-class UserForm extends StatelessWidget {
+class UserForm extends StatefulWidget {
   UserForm({Key? key}) : super(key: key);
 
+  @override
+  State<UserForm> createState() => _UserFormState();
+}
+
+class _UserFormState extends State<UserForm> {
   final _form = GlobalKey<FormState>();
   final Map<String, String> _formData = {};
+
+  late User user;
+  String acao = 'Usuário criado com sucesso.';
 
   void _loadFormData(User user) {
     _formData['id'] = user.id;
@@ -17,11 +25,20 @@ class UserForm extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final user = ModalRoute.of(context)?.settings.arguments as User? ??
-        const User(id: '', name: '', email: '', avatarUrl: '');
-    String acao = 'Usuário criado com sucesso.';
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
+    user = ModalRoute.of(context)?.settings.arguments as User? ??
+        const User(id: '', name: '', email: '', avatarUrl: '');
+
+    if (user.id.isNotEmpty) {
+      _loadFormData(user);
+      acao = 'Usuário alterado com sucesso.';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (user.id.isNotEmpty) {
       _loadFormData(user);
       acao = 'Usuário alterado com sucesso.';
